@@ -4,6 +4,8 @@ import cx from "classnames";
 import { Currency } from "@enigma-lake/zoot-platform-sdk";
 
 import styles from "./Switch.module.scss";
+import { useAutoManualPlayState } from "../../AutoManualPlayStateProvider/AutoManualPlayStateContext";
+import { PlaySide } from "../../../types/playController";
 
 interface SwitchProps {
   enabled: boolean;
@@ -11,6 +13,7 @@ interface SwitchProps {
   isPlaying: boolean;
   currency: Currency;
   disabled: boolean;
+  side: PlaySide;
 }
 
 export const Switch = ({
@@ -19,15 +22,22 @@ export const Switch = ({
   disabled,
   currency,
   isPlaying,
+  side,
 }: SwitchProps) => {
+  const playControllerContext = useAutoManualPlayState();
+  const {
+    playOptions: { playHook },
+  } = playControllerContext.config;
+  const { disabledCurrencySwitcher } = playHook(side);
+
   const switcherClassName = useMemo(
     () =>
       cx(styles.switcher, styles[currency], {
         [styles.checked]: enabled,
         [styles.unchecked]: !enabled,
-        [styles.disabled]: disabled,
+        [styles.disabled]: disabled || disabledCurrencySwitcher,
       }),
-    [enabled, currency, disabled],
+    [currency, enabled, disabled, disabledCurrencySwitcher],
   );
 
   useEffect(() => {

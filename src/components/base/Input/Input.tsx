@@ -7,6 +7,7 @@ import styles from "./Input.module.scss";
 type Props = React.ComponentProps<"input"> & {
   max?: number;
 };
+
 const Input = ({ onChange, disabled, className, max, ...restProps }: Props) => {
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {

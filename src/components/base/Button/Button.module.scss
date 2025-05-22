@@ -8,10 +8,10 @@
   outline: none;
   user-select: none;
   font-weight: 700;
+  $border-radius: 10px;
 
   &__theme {
     &-ghost {
-      border-radius: 10px;
       backdrop-filter: blur(10px);
       height: 100%;
       width: 100%;
@@ -19,27 +19,54 @@
       display: flex;
       align-items: center;
       color: rgba(var(--text-color-hex), 1);
+      backdrop-filter: blur(10px);
 
       &:hover,
       &:focus,
       &:active {
         background: rgba(var(--bg-color-rgb), 0.05);
       }
+
+      &:first-of-type {
+        border-top-left-radius: $border-radius;
+      }
+
+      &:last-of-type {
+        border-top-right-radius: $border-radius;
+      }
     }
 
     &-primary {
       color: rgba(var(--text-color-hex), 1);
-      line-height: 125%;
+
       letter-spacing: 0.75px;
       border-radius: 10px;
-      height: 39px;
+      height: 46px !important;
       width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
 
       border-radius: 10px;
-      margin-top: 7px;
+      margin-top: -5px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      p:first-of-type {
+        font-family: Inter;
+        font-size: 15px;
+        font-style: normal;
+        font-weight: 700;
+      }
+
+      p:nth-of-type(2) {
+        font-family: Inter;
+        font-size: 10px;
+        font-style: normal;
+        font-weight: 700;
+      }
+      z-index: 2;
     }
   }
 
@@ -74,8 +101,59 @@
     background: rgba(154, 124, 4, 1);
   }
 }
+
+.cancelButton {
+  background: linear-gradient(357deg, #e4470f 23.9%, #fe7e51 97.97%);
+  &:active,
+  &__active {
+    background: rgba(228, 71, 15, 1);
+  }
+}
 .overlap {
   margin-top: 0;
   transform: translateY(-15px);
   padding: 18.5px;
+}
+
+// New button
+.cashout_sweeps,
+.cashout_gold {
+  background: linear-gradient(357deg, #7f44c3 22.01%, #9f5eeb 97.97%);
+  &:active,
+  &__active {
+    background: rgba(89, 47, 157, 1);
+  }
+}
+
+.play_sweeps,
+.play-next_sweeps,
+.waiting_sweeps,
+waiting_gold {
+  background: linear-gradient(357deg, #10be68 23.9%, #29cf7d 97.97%);
+  &:active,
+  &__active {
+    background: rgba(0, 140, 71, 1);
+  }
+}
+
+.play_gold,
+.play-next_gold {
+  background: linear-gradient(357deg, #bf9e21 22.01%, #f0c72c 97.97%);
+  &:active,
+  &__active {
+    background: rgba(154, 124, 4, 1);
+  }
+}
+
+.cancel,
+.cancel_sweeps,
+.cancel_gold,
+.cancel-next,
+.cancel-next_sweeps,
+.cancel-next_gold {
+  background: linear-gradient(357deg, #e4470f 23.9%, #fe7e51 97.97%);
+  &:active,
+  &__active {
+    background: rgba(183, 52, 7, 1);
+  }
 }

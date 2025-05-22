@@ -6,12 +6,15 @@ import { GoldIcon } from "./GoldIcon";
 import { SweepsIcon } from "./SweepsIcon";
 import style_select from "./SelectMenu.module.scss";
 import ChevronIcon from "../ChevronIcon/ChevronIcon";
+import { useAutoManualPlayState } from "../../AutoManualPlayStateProvider/AutoManualPlayStateContext";
+import { PlaySide } from "../../../types/playController";
 
 interface ISelectMenuProps {
   currencies: Currency[];
   selectedCurrency: Currency;
   setSelectedCurrency: (currency: { currency: Currency }) => void;
   disabled?: boolean;
+  side: PlaySide;
 }
 
 const capitalize = (str: string) =>
@@ -25,9 +28,17 @@ const SelectMenu = ({
   selectedCurrency,
   setSelectedCurrency,
   disabled = false,
+  side,
 }: ISelectMenuProps) => {
+  const playControllerContext = useAutoManualPlayState();
+  const {
+    playOptions: { playHook },
+  } = playControllerContext.config;
+  const { disabledCurrencySwitcher } = playHook(side);
+
+  const isDisabled = disabled || disabledCurrencySwitcher;
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (disabled) {
+    if (isDisabled) {
       return;
     }
 
@@ -47,13 +58,13 @@ const SelectMenu = ({
         <>
           <MenuButton
             className={cx(style_select.button, {
-              [style_select.disabled]: disabled,
+              [style_select.disabled]: isDisabled,
             })}
-            disabled={disabled}
+            disabled={isDisabled}
             as="div"
           >
             {getIcon(selectedCurrency)}
-            <ChevronIcon open={open} disabled={disabled} />
+            <ChevronIcon open={open} disabled={isDisabled} />
           </MenuButton>
           <MenuItems
             anchor={{ to: "top start" }}

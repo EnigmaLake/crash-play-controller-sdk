@@ -6,6 +6,7 @@ import Input from "../Input/Input";
 import { Switch } from "../Switch/Switch";
 
 import styles from "./InputWithIcon.module.scss";
+import { PlaySide } from "../../../types/playController";
 
 export type Props = PropsWithChildren<ComponentProps<"input">> & {
   switcherConfig?: {
@@ -14,6 +15,7 @@ export type Props = PropsWithChildren<ComponentProps<"input">> & {
     enabled: boolean;
     currency: Currency;
     disabled: boolean;
+    side: PlaySide;
   };
   currency: Currency;
   label?: string;

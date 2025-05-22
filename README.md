@@ -1,6 +1,6 @@
 # MultiPlayController
 
-The `MultiPlayController` component is a key part of the gameplay interface, allowing users to initiate a play based on their current game state. It supports manual play, autoplay, dynamic currency handling, and play amount adjustments.
+The `MultiPlayController` component is a key part of the gameplay interface, allowing users to initiate a play based on their current game state. It supports manual play, dynamic currency handling, and play amount adjustments.
 
 ---
 
@@ -12,7 +12,6 @@ The `MultiPlayController` allows the user to:
 - Adjust the play amount.
 - Start a play (manual or auto).
 - Cash out winnings.
-- Toggle between manual play and autoplay.
 
 ---
 
@@ -42,12 +41,10 @@ import "@enigma-lake/crash-play-controller-sdk/dist/style.css";
 
 ### `AutoManualPlayProvider`
 
-The `AutoManualPlayProvider` wraps the PlayController, managing both manual play and autoplay. It uses React Context to provide game state and actions throughout the component tree.
+The `AutoManualPlayProvider` wraps the PlayController. It uses React Context to provide game state and actions throughout the component tree.
 
 🔹 **Features of `AutoManualPlayProvider`**:
 
-- **Manages Game Mode**: Switches between MANUAL and AUTOPLAY.
-- **Handles Autoplay**: Sets the number of plays, tracks rounds, and stops automatically.
 - **Provides Context:** Exposes state and functions for controlling play behavior.
 
 ## Props
@@ -81,27 +78,13 @@ Handles currency-related logic and settings.
 Defines functions for the user actions.
 
 - **`onPlay`**: A callback function to trigger when the user starts a play.
-- **`onAutoPlay`**: A callback function to trigger when the user starts autoplay.
 
 ### 4. `PlaySettingsProps`
 
 Handles game-specific settings and states.
 
 - **`playOptions`**: An object containing the following properties:
-  - **`isPlaying`**: Boolean flag indicating whether the game is currently in progress.
-  - **`canCashout`**: Boolean flag indicating whether the user can cash out their current play.
-  - **`disabledController`**: Boolean flag to disable all interactive elements in the component.
-  - **`displayController`**: Boolean flag to determine if the play controller should be visible.
-  - **`playHook`**: A hook providing the current play amount, play limits, and a function to set the play amount.
-    - **`playLimits`**: Play limits for the game.
-    - **`leftPlayAmount`**: The current left play amount.
-    - **`rightPlayAmount`**: The current right play amount.
-    - **`setLeftBetAmount`**: A function to set the left play amount.
-    - **`setRightBetAmount`**: A function to set the right play amount.
-  - **`autoPlayDelay`** (optional): The delay (in milliseconds) before auto play starts.
-  - **`currentRisk`**: The current risk setting.
-  - **`onRiskChange`**: Callback function to handle risk selection.
-  - **`risks`**: Array of available risk types.
+  - **`playLimits`**: Play limits for the game.
 
 ---
 
@@ -119,43 +102,19 @@ const GameExample = () => {
       currencies: [Currency.SWEEPS, Currency.GOLD],
     },
     onPlay: () => console.log("Play button clicked"),
-    onAutoPlay: (selection, next, stop) => {
-      console.log("Auto Play started with selection:", selection);
-      next(); // Proceed to the next autoplay round
-      stop(); // Stop autoplay (e.g., in case of an error or when the user chooses to stop)
-    },
     playOptions: {
-      displayController: true,
-      canCashout: false,
-      isPlaying: false,
-      disabledController: false,
-      playHook: () => {
-        return {
-          playLimits: { min: 1, max: 100 },
-          leftPlayAmount: 10,
-          rightPlayAmount: 10,
-          setLeftBetAmount: (value) => console.log("New left play amount:", value),
-          setRightBetAmount: (value) => console.log("New right play amount:", value),
-        };
+        playLimits: { min: 1, max: 100 },
       },
     },
     panel: {
       bottom: window.innerWidth < 450 ? "55px" : "70px",
       bgColorHex: "#08643F"
     },
-    dropdown: {
-      bgColorHex: "#10243F",
-      riskColorConfig: {
-        LOW: "#1AE380",
-        MEDIUM: "#FAEB78",
-        HIGH: "#FF5646",
-      },
-    }
   };
 
   return (
     <AutoManualPlayProvider config={config}>
-      {({ autoPlay: { selection, setSelection, state }, mode }) => (
+      {() => (
         // children content
       )}
     </AutoManualPlayProvider>

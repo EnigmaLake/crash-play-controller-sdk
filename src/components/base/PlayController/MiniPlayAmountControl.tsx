@@ -1,71 +1,85 @@
 import cx from "classnames";
-import {
-  Currency,
-  sendSetUserCurrencyEvent,
-} from "@enigma-lake/zoot-platform-sdk";
+import { sendSetUserCurrencyEvent } from "@enigma-lake/zoot-platform-sdk";
 
 import Button from "../Button";
 import MiniInputWithIcon from "../MiniInputWithIcon";
 import SelectMenu from "../SelectMenu";
-import { PLAY_HALVE, PLAY_DOUBLE } from "../../../types/playController";
+import { PlaySide } from "../../../types/playController";
 
 import styles_group from "./MiniPlayAmountController.module.scss";
+import { useAutoManualPlayState } from "../../AutoManualPlayStateProvider/AutoManualPlayStateContext";
+import { useEffect, useState } from "react";
 
-interface MiniPlayAmountControlProps {
-  playAmount: number;
-  minPlayAmount: number;
-  maxPlayAmount: number;
-  isDisabled: () => boolean;
-  adjustPlayAmount: (multiplier: number) => void;
-  onChangeAmount: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onBlurAmount: (event: React.FocusEvent<HTMLInputElement>) => void;
-  currentCurrency: Currency;
-  currencies: Currency[];
-  disableInput: boolean;
-}
+const MiniPlayAmountControl = ({ side }: { side: PlaySide }) => {
+  const playControllerContext = useAutoManualPlayState();
 
-const MiniPlayAmountControl = ({
-  playAmount,
-  minPlayAmount,
-  maxPlayAmount,
-  isDisabled,
-  adjustPlayAmount,
-  onChangeAmount,
-  onBlurAmount,
-  currentCurrency,
-  currencies,
-  disableInput,
-}: MiniPlayAmountControlProps) => {
+  const {
+    currencyOptions: { currentCurrency, currencies },
+    playOptions: { playHook, playLimits },
+  } = playControllerContext.config;
+  const config = playHook(side);
+  const [newPlayAmount, setNewPlayAmount] = useState<string>(
+    config.playAmount.toString(),
+  );
+  const formDisabled = config.formDisabled;
+
+  const handleOnDouble = () => {
+    const result = config.onDouble(side);
+    setNewPlayAmount(result.toString());
+  };
+
+  const handleOnHalf = () => {
+    const result = config.onHalf(side);
+    setNewPlayAmount(result.toString());
+  };
+
+  const handleOnBlur = (newValue: string) => {
+    const result = config.onBlur(newValue, side);
+    setNewPlayAmount(result.toString());
+    return result;
+  };
+
+  useEffect(() => {
+    const defaultAmount = playLimits[currentCurrency].limits.min;
+    setNewPlayAmount(defaultAmount.toString());
+  }, [currentCurrency, playLimits]);
+
   return (
     <div className={cx(styles_group.base)}>
       <div className={cx(styles_group.group)}>
         <Button
           className={styles_group.groupItem}
-          onClick={() => adjustPlayAmount(PLAY_HALVE)}
+          onClick={() => handleOnHalf()}
           theme="ghost"
-          disabled={isDisabled()}
+          disabled={formDisabled}
         >
           <span className={cx(styles_group.x2, styles_group.first)}>-</span>
         </Button>
         <Button
           className={styles_group.groupItem}
-          onClick={() => adjustPlayAmount(PLAY_DOUBLE)}
+          onClick={() => handleOnDouble()}
           theme="ghost"
-          disabled={isDisabled()}
+          disabled={formDisabled}
         >
           <span className={cx(styles_group.x2, styles_group.last)}>+</span>
         </Button>
       </div>
       <MiniInputWithIcon
         className={styles_group.groupItem}
-        value={playAmount}
+        value={newPlayAmount}
         type="number"
-        onChange={onChangeAmount}
-        onBlur={onBlurAmount}
-        placeholder={minPlayAmount.toString()}
-        max={maxPlayAmount}
-        min={minPlayAmount}
-        disabled={isDisabled() || disableInput}
+        onChange={(event) => setNewPlayAmount(event.currentTarget.value)}
+        onBlur={(event) => {
+          const newValue = event.currentTarget.value;
+          const result = handleOnBlur(newValue);
+          if (result !== Number(newValue)) {
+            setNewPlayAmount(result.toFixed(2));
+          }
+        }}
+        placeholder={playLimits[currentCurrency].limits.min.toString()}
+        max={playLimits[currentCurrency].limits.max}
+        min={playLimits[currentCurrency].limits.min}
+        disabled={formDisabled}
         currency={currentCurrency}
         label="Play Amount"
       >
@@ -73,7 +87,8 @@ const MiniPlayAmountControl = ({
           currencies={currencies}
           selectedCurrency={currentCurrency}
           setSelectedCurrency={sendSetUserCurrencyEvent}
-          disabled={isDisabled()}
+          disabled={formDisabled}
+          side={side}
         />
       </MiniInputWithIcon>
     </div>

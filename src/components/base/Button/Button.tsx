@@ -18,7 +18,7 @@ type Props = React.ComponentProps<"button"> & {
 
 const Button = ({
   disabled,
-  roleType,
+  roleType = GAME_MODE.MANUAL,
   className = "",
   theme = "primary",
   ...props

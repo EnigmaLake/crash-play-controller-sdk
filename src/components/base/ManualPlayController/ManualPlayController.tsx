@@ -1,121 +1,49 @@
-import { Currency } from "@enigma-lake/zoot-platform-sdk";
 import cx from "classnames";
 
-import { usePlayController } from "../../hooks/usePlayController";
 import MiniPlayAmountControl from "../PlayController/MiniPlayAmountControl";
-import Button from "../Button";
-
-import styles_button from "../Button/Button.module.scss";
 import styles_group from "./ManualPlayController.module.scss";
 import { PlaySide } from "../../../types/playController";
-import { GAME_MODE } from "../../../types";
-import { useCallback, useEffect, useMemo } from "react";
-import { selectButton, addPressedClass, removePressedClass } from "../../utils";
+import { useAutoManualPlayState } from "../../AutoManualPlayStateProvider/AutoManualPlayStateContext";
+import style_button from "../Button/Button.module.scss";
+import React, { useEffect } from "react";
 
 const ManualPlayController = ({
   side = PlaySide.LEFT,
-  lastPlayedSide,
 }: {
   side?: PlaySide;
-  lastPlayedSide?: PlaySide;
 }) => {
+  const playControllerContext = useAutoManualPlayState();
   const {
-    currentCurrency,
-    currencies,
-    playAmount,
-    playOptions,
-    minPlayAmount,
-    maxPlayAmount,
-    isValidPlayAmount,
-    adjustPlayAmount,
-    onChangeAmount,
-    onBlurAmount,
-    manualPlay: { isDisabled, onPlay },
-  } = usePlayController(side);
+    currencyOptions: { currentCurrency },
+    playOptions: { playHook },
+  } = playControllerContext.config;
 
-  const roleButton = GAME_MODE.MANUAL;
-
-  const activeClassName = useMemo(() => {
-    return currentCurrency === Currency.GOLD
-      ? styles_button.buttonGold__active
-      : styles_button.buttonSweeps__active;
-  }, [currentCurrency]);
-
-  const handleKeyPress = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.code !== "Space") {
-        return;
-      }
-
-      const button = selectButton(roleButton, lastPlayedSide);
-      if (!button || isDisabled()) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-      addPressedClass(roleButton, activeClassName, lastPlayedSide);
-      button.click();
-    },
-    [roleButton, isDisabled, activeClassName, lastPlayedSide],
-  );
-
-  const handleKeyUp = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.code !== "Space") {
-        return;
-      }
-
-      const button = selectButton(roleButton, lastPlayedSide);
-      if (!button) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-      removePressedClass(roleButton, activeClassName, lastPlayedSide);
-    },
-    [roleButton, activeClassName, lastPlayedSide],
-  );
+  const config = playHook(side);
+  const { type, element } = config.renderActionButton() as {
+    type: string;
+    element: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
+  };
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyPress, true);
-    window.addEventListener("keyup", handleKeyUp, true);
+    const thisElement = document.getElementById(
+      `${type}-${side}-${currentCurrency}`,
+    );
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress, true);
-      window.removeEventListener("keyup", handleKeyUp, true);
-    };
-  }, [handleKeyPress, handleKeyUp]);
-
-  const isButtonDisabled = isDisabled() || !isValidPlayAmount;
+    if (thisElement) {
+      thisElement.className = "";
+      const newClassName = cx(
+        style_button.base,
+        style_button[`base__theme-primary`],
+        style_button[`${type}_${currentCurrency}`],
+      );
+      thisElement.classList.add(...newClassName.split(" "));
+    }
+  }, [type, side, currentCurrency, config.formDisabled]);
 
   return (
     <div className={cx(styles_group.base)}>
-      <MiniPlayAmountControl
-        playAmount={playAmount}
-        minPlayAmount={minPlayAmount}
-        maxPlayAmount={maxPlayAmount}
-        isDisabled={isDisabled}
-        adjustPlayAmount={adjustPlayAmount}
-        onChangeAmount={onChangeAmount}
-        onBlurAmount={onBlurAmount}
-        currentCurrency={currentCurrency}
-        currencies={currencies}
-        disableInput={playOptions.disableInput}
-      />
-      <Button
-        disabled={isButtonDisabled}
-        className={cx({
-          [styles_button.buttonGold]: currentCurrency === Currency.GOLD,
-          [styles_button.buttonSweeps]: currentCurrency !== Currency.GOLD,
-          [styles_button.overlap]: true,
-        })}
-        onClick={() => onPlay(side)}
-        roleType={roleButton}
-      >
-        Play
-      </Button>
+      <MiniPlayAmountControl side={side} />
+      {element}
     </div>
   );
 };

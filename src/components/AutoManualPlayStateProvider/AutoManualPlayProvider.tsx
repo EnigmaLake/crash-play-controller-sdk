@@ -1,10 +1,9 @@
-import { ReactElement, useCallback, useState, useMemo } from "react";
+import { ReactElement, useMemo } from "react";
 import cx from "classnames";
 
-import { AUTO_PLAY_STATE, GAME_MODE } from "../../types/gameMode";
+import { GAME_MODE } from "../../types/gameMode";
 import { PlayControllerProps } from "../../types/playController";
 
-import AutoPlayController from "../base/AutoPlayController";
 import ManualMultiPlayController from "../base/ManualMultiPlayController";
 
 import styles_ui from "./UI.module.scss";
@@ -13,9 +12,6 @@ import {
   AutoManualPlayStateContextType,
 } from "./AutoManualPlayStateContext";
 import { hexToRgb } from "../utils";
-
-import DifficultySelector from "../base/DifficultySelector/DifficultySelector";
-import InputWithSwitch from "../base/InputWithSwitch";
 
 interface AutoManualPlayStateProviderProps {
   children:
@@ -28,165 +24,31 @@ const AutoManualPlayProvider: React.FC<AutoManualPlayStateProviderProps> = ({
   children,
   config,
 }) => {
-  const [mode, setMode] = useState<GAME_MODE>(GAME_MODE.MANUAL);
-  const [autoplayState, setAutoplayState] = useState<AUTO_PLAY_STATE>(
-    AUTO_PLAY_STATE.IDLE,
-  );
-  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
-  const [playedRounds, setPlayedRounds] = useState(0);
-  const [numberOfPlays, setNumberOfPlays] = useState(Infinity);
-
-  const startAutoplay = useCallback((numPlays: number) => {
-    setMode(GAME_MODE.AUTOPLAY);
-    setAutoplayState(AUTO_PLAY_STATE.PLAYING);
-    setNumberOfPlays(numPlays);
-    setPlayedRounds(0);
-  }, []);
-
-  const stopAutoplay = useCallback(() => {
-    setAutoplayState(AUTO_PLAY_STATE.IDLE);
-    setIsAutoPlaying(false);
-  }, []);
-
-  const updateAutoplayState = useCallback(
-    (newState: AUTO_PLAY_STATE) => setAutoplayState(newState),
-    [],
-  );
-
-  const playManualMode = useCallback(() => {
-    setMode(GAME_MODE.MANUAL);
-    setAutoplayState(AUTO_PLAY_STATE.IDLE);
-  }, []);
-
-  const resetState = useCallback(() => {
-    setMode(GAME_MODE.MANUAL);
-    setAutoplayState(AUTO_PLAY_STATE.IDLE);
-    setPlayedRounds(0);
-    setNumberOfPlays(0);
-  }, []);
-
-  const toggleMode = useCallback(() => {
-    if (
-      config.playOptions.isPlaying ||
-      config.playOptions.disabledController ||
-      autoplayState === AUTO_PLAY_STATE.PLAYING
-    ) {
-      return;
-    }
-    setNumberOfPlays(Infinity);
-    setMode((prevMode) =>
-      prevMode === GAME_MODE.MANUAL ? GAME_MODE.AUTOPLAY : GAME_MODE.MANUAL,
-    );
-  }, [autoplayState, config.playOptions]);
-
   const contextValue = useMemo(
     () => ({
-      mode,
+      mode: GAME_MODE.MANUAL,
       config,
-      manual: { playManualMode },
-      autoPlay: {
-        state: autoplayState,
-        playedRounds,
-        numberOfPlays,
-        isActive: isAutoPlaying,
-        start: startAutoplay,
-        stop: stopAutoplay,
-        updateState: updateAutoplayState,
-        setIsActive: setIsAutoPlaying,
-        setPlayedRounds,
-        setNumberOfPlays,
-        setState: setAutoplayState,
-      },
-      reset: resetState,
-      toggleMode,
     }),
-    [
-      mode,
-      config,
-      playManualMode,
-      autoplayState,
-      playedRounds,
-      numberOfPlays,
-      isAutoPlaying,
-      startAutoplay,
-      stopAutoplay,
-      updateAutoplayState,
-      resetState,
-      toggleMode,
-    ],
+    [config],
   );
 
   return (
     <AutoManualPlayStateContext.Provider value={contextValue}>
       {typeof children === "function" ? children(contextValue) : children}
 
-      {config.playOptions.displayController && (
-        <div
-          className={cx(styles_ui.base, styles_ui.betForm, {
-            [styles_ui.multiPlayController]: mode === GAME_MODE.MANUAL,
-          })}
-          style={
-            {
-              "--play-bottom": config.panel.bottom,
-              "--play-panel-bg": hexToRgb(config.panel.bgColorHex ?? "#01243A"),
-              "--play-dropdown-bg": hexToRgb(
-                config.dropdown.bgColorHex ?? "#01243A",
-              ),
-            } as React.CSSProperties
-          }
-        >
-          <div className={cx(styles_ui.auto)}>
-            <DifficultySelector
-              playOptions={{
-                ...config.playOptions,
-                disabledMenu:
-                  config.playOptions.disabledController ||
-                  autoplayState === AUTO_PLAY_STATE.PLAYING,
-              }}
-              dropdownConfig={config.dropdown}
-            />
-            <InputWithSwitch
-              value={numberOfPlays === Infinity ? 0 : numberOfPlays}
-              type="number"
-              onChange={(e) => setNumberOfPlays(Number(e.currentTarget.value))}
-              placeholder="Number of Plays"
-              min={0}
-              max={99}
-              disabled={
-                config.playOptions.disabledController ||
-                mode === GAME_MODE.MANUAL
-              }
-              currency={config.currencyOptions.currentCurrency}
-              switcherConfig={{
-                onSwitch: toggleMode,
-                isPlaying: isAutoPlaying || config.playOptions.isPlaying,
-                enabled: mode !== GAME_MODE.MANUAL,
-                currency: config.currencyOptions.currentCurrency,
-                disabled:
-                  config.playOptions.disabledController ||
-                  autoplayState === AUTO_PLAY_STATE.PLAYING,
-              }}
-            >
-              <span
-                className={cx({
-                  [styles_ui.disabled]:
-                    mode !== GAME_MODE.AUTOPLAY ||
-                    numberOfPlays !== Infinity ||
-                    autoplayState === AUTO_PLAY_STATE.PLAYING,
-                })}
-              >{`∞`}</span>
-            </InputWithSwitch>
-          </div>
-
-          {mode === GAME_MODE.MANUAL ? (
-            <ManualMultiPlayController
-              lastPlayedSide={config.playOptions.lastPlayedSide}
-            />
-          ) : (
-            <AutoPlayController />
-          )}
-        </div>
-      )}
+      <div
+        className={cx(styles_ui.base, styles_ui.betForm, {
+          [styles_ui.multiPlayController]: true,
+        })}
+        style={
+          {
+            "--play-bottom": config.panel.bottom,
+            "--play-panel-bg": hexToRgb(config.panel.bgColorHex ?? "#01243A"),
+          } as React.CSSProperties
+        }
+      >
+        <ManualMultiPlayController />
+      </div>
     </AutoManualPlayStateContext.Provider>
   );
 };
