@@ -8,6 +8,17 @@
   outline: none;
   width: 100%;
   user-select: none !important;
+  
+}
+
+.base[type='number'] {
+  -moz-appearance: textfield; // Firefox
+}
+
+.base[type='number']::-webkit-inner-spin-button,
+.base[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none; // Chrome, Safari, Edge
+  margin: 0;
 }
 
 .disabled {

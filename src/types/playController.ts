@@ -5,6 +5,9 @@ export type StylingProps = {
     bottom: string;
     bgColorHex: string;
   };
+  dropdown: {
+    bgColorHex: string;
+  }
 };
 
 export type CurrencyProps = {
@@ -19,12 +22,12 @@ type PlayHookType = {
   playAmount: number;
   renderActionButton: () => {
     type:
-      | "cashout"
-      | "cancel"
-      | "cancel-next"
-      | "play-next"
-      | "play"
-      | "waiting";
+    | "cashout"
+    | "cancel"
+    | "cancel-next"
+    | "play-next"
+    | "play"
+    | "waiting";
     element: React.ReactElement;
   };
   disabledCurrencySwitcher: boolean;

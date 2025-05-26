@@ -1,98 +1,44 @@
 # MultiPlayController
 
-The `MultiPlayController` component is a key part of the gameplay interface, allowing users to initiate a play based on their current game state. It supports manual play, dynamic currency handling, and play amount adjustments.
+The `MultiPlayController` component provides a responsive and configurable interface for managing left and right side game interactions. It supports play amount adjustment, multi-currency handling, and customizable styling, all powered through a React Context Provider.
 
 ---
 
-## Component Overview
+## ✨ Features
 
-The `MultiPlayController` allows the user to:
-
-- Select a currency.
-- Adjust the play amount.
-- Start a play (manual or auto).
-- Cash out winnings.
+* Dual-sided manual play (Left / Right).
+* Multi-currency selection with real-time switching.
+* Dynamic play amount controls (half/double).
+* Context-driven configuration and state.
+* Customizable UI panel position and background.
 
 ---
 
-## Setup
-
-### 1. Install the package using npm:
+## 🛠️ Installation
 
 ```bash
 npm install @enigma-lake/crash-play-controller-sdk
 ```
 
-### 2. Import the component and styles in your project:
+---
+
+## 🔗 Usage
+
+### 1. Import Styles and Provider
+
+```tsx
+import "@enigma-lake/crash-play-controller-sdk/dist/style.css";
+import {
+  AutoManualPlayProvider,
+} from "@enigma-lake/crash-play-controller-sdk";
+```
+
+### 2. Wrap Your App or Game Component
 
 ```tsx
 import {
-  AUTO_PLAY_STATE,
-  GAME_MODE,
   AutoManualPlayProvider,
 } from "@enigma-lake/crash-play-controller-sdk";
-
-import "@enigma-lake/crash-play-controller-sdk/dist/style.css";
-```
-
----
-
-## Context & Provider
-
-### `AutoManualPlayProvider`
-
-The `AutoManualPlayProvider` wraps the PlayController. It uses React Context to provide game state and actions throughout the component tree.
-
-🔹 **Features of `AutoManualPlayProvider`**:
-
-- **Provides Context:** Exposes state and functions for controlling play behavior.
-
-## Props
-
-### 1. `StylingProps`
-
-Handles the styling-related properties for the component.
-
-- **`panel` (optional)**: Custom styling for the play controller.
-
-  - **`bgColorHex`**: Hex color for the panel background.
-  - **`bottom`**: Position of the panel relative to the window.
-
-- **`dropdown` (optional)**: Custom styling for the dropdown.
-  - **`bgColorHex`**: Hex color for the panel background.
-  - **`riskColorConfig`**: Object defining colors for different risk levels.
-    - **`LOW`**: color (e.g." #1AE380")
-    - **`MEDIUM`**: color (e.g." #FAEB78")
-    - **`HIGH`**: color (e.g." #FF5646")
-
-### 2. `CurrencyProps`
-
-Handles currency-related logic and settings.
-
-- **`currencyOptions`**: An object containing the following properties:
-  - **`currentCurrency`**: The currently selected currency (e.g., `Currency.SWEEPS`).
-  - **`currencies`**: Array of available currencies that the user can choose from.
-
-### 3. `ActionsProps`
-
-Defines functions for the user actions.
-
-- **`onPlay`**: A callback function to trigger when the user starts a play.
-
-### 4. `PlaySettingsProps`
-
-Handles game-specific settings and states.
-
-- **`playOptions`**: An object containing the following properties:
-  - **`playLimits`**: Play limits for the game.
-
----
-
-## Example Usage
-
-```tsx
-import "@enigma-lake/crash-play-controller-sdk/dist/style.css";
-import { AutoManualPlayProvider, GAME_MODE, AUTO_PLAY_STATE } from "@enigma-lake/crash-play-controller-sdk";
 import { Currency } from "@enigma-lake/zoot-platform-sdk";
 
 const GameExample = () => {
@@ -101,22 +47,33 @@ const GameExample = () => {
       currentCurrency: Currency.SWEEPS,
       currencies: [Currency.SWEEPS, Currency.GOLD],
     },
-    onPlay: () => console.log("Play button clicked"),
     playOptions: {
-        playLimits: { min: 1, max: 100 },
+      playLimits: {
+        [Currency.SWEEPS]: { limits: { min: 1, max: 100 } },
+        [Currency.GOLD]: { limits: { min: 5, max: 200 } },
       },
+      playHook: (side) => ({
+        playAmount: 10,
+        onHalf: () => 5,
+        onDouble: () => 20,
+        onBlur: (value) => Number(value),
+        renderActionButton: () => ({
+          type: "play",
+          element: <button>Play</button>,
+        }),
+        formDisabled: false,
+        disabledCurrencySwitcher: false,
+      }),
     },
     panel: {
-      bottom: window.innerWidth < 450 ? "55px" : "70px",
-      bgColorHex: "#08643F"
+      bottom: "70px",
+      bgColorHex: "#08643F",
     },
   };
 
   return (
     <AutoManualPlayProvider config={config}>
-      {() => (
-        // children content
-      )}
+      {/* Render controller UI here */}
     </AutoManualPlayProvider>
   );
 };
@@ -124,32 +81,98 @@ const GameExample = () => {
 
 ---
 
-## Key Features
+## 📆 Props Reference
 
-1. **Dynamic Currency Handling**:
+### StylingProps
 
-   - Supports multiple currencies (e.g., SWEEPS, GOLD).
-   - Allows users to switch currencies easily.
+```ts
+type StylingProps = {
+  panel: {
+    bottom: string;
+    bgColorHex: string;
+  };
+};
+```
 
-2. **Play Amount Adjustment**:
+### CurrencyProps
 
-   - Allows users to set different play amounts for left and right bets.
-   - Validates play amounts against user balance and play limits.
+```ts
+type CurrencyProps = {
+  currentCurrency: Currency;
+  currencies: Currency[];
+};
+```
 
-3. **Custom Styling**:
+### PlaySettingsProps
 
-   - Supports customizable input and button colors.
+```ts
+type PlaySettingsProps = {
+  playLimits: PlayLimits;
+  playHook: (side: PlaySide) => PlayHookType;
+};
+```
 
-4. **Play & Cashout Actions**:
-   - Allows users to initiate gameplay seamlessly.
+### PlayHookType
+
+```ts
+type PlayHookType = {
+  onHalf: (side: PlaySide) => number;
+  onDouble: (side: PlaySide) => number;
+  onBlur: (newValue: string, side: PlaySide) => number;
+  playAmount: number;
+  renderActionButton: () => {
+    type: "cashout" | "cancel" | "cancel-next" | "play-next" | "play" | "waiting";
+    element: React.ReactElement;
+  };
+  disabledCurrencySwitcher: boolean;
+  formDisabled: boolean;
+};
+```
 
 ---
 
-## Development Notes
+## 🛏️ UI Structure
 
-1. **Play Amount Validation**:
+The `MultiPlayController` renders:
 
-   - The play amount is validated to ensure it falls within the minimum and maximum limits.
+* Two instances of `MiniPlayAmountControl` (one for each side: LEFT, RIGHT).
+* Controls for:
 
-2. **Responsive Design**:
-   - The component is styled to be responsive and integrate seamlessly into various layouts.
+  * Doubling/Halving play amount
+  * Selecting currency
+  * Typing custom amount
+  * Action button (e.g., Play / Cashout)
+
+---
+
+## 💰 Currency Behavior
+
+* Currency selection is synced between both sides.
+* On change:
+
+  * Play amount resets based on currency limits.
+  * Any queued bets are cleared to ensure consistency.
+
+---
+
+## 🎨 Custom Styling
+
+Use the `panel` prop to customize the floating controller position and background.
+
+```ts
+panel: {
+  bottom: "55px",
+  bgColorHex: "#123456"
+}
+```
+
+---
+
+## 🖊️ Development Notes
+
+* All play amount updates are clamped to limits.
+* The form is disabled when a play is active.
+* Built with SCSS modules and utility class merging (`classnames`).
+* Requires `AutoManualPlayProvider` for context to function.
+
+---
