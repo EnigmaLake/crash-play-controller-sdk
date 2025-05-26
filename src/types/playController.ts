@@ -19,12 +19,12 @@ type PlayHookType = {
   playAmount: number;
   renderActionButton: () => {
     type:
-    | "cashout"
-    | "cancel"
-    | "cancel-next"
-    | "play-next"
-    | "play"
-    | "waiting";
+      | "cashout"
+      | "cancel"
+      | "cancel-next"
+      | "play-next"
+      | "play"
+      | "waiting";
     element: React.ReactElement;
   };
   disabledCurrencySwitcher: boolean;

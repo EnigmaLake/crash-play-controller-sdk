@@ -6,11 +6,11 @@ The `MultiPlayController` component provides a responsive and configurable inter
 
 ## ✨ Features
 
-* Dual-sided manual play (Left / Right).
-* Multi-currency selection with real-time switching.
-* Dynamic play amount controls (half/double).
-* Context-driven configuration and state.
-* Customizable UI panel position and background.
+- Dual-sided manual play (Left / Right).
+- Multi-currency selection with real-time switching.
+- Dynamic play amount controls (half/double).
+- Context-driven configuration and state.
+- Customizable UI panel position and background.
 
 ---
 
@@ -28,17 +28,13 @@ npm install @enigma-lake/crash-play-controller-sdk
 
 ```tsx
 import "@enigma-lake/crash-play-controller-sdk/dist/style.css";
-import {
-  AutoManualPlayProvider,
-} from "@enigma-lake/crash-play-controller-sdk";
+import { AutoManualPlayProvider } from "@enigma-lake/crash-play-controller-sdk";
 ```
 
 ### 2. Wrap Your App or Game Component
 
 ```tsx
-import {
-  AutoManualPlayProvider,
-} from "@enigma-lake/crash-play-controller-sdk";
+import { AutoManualPlayProvider } from "@enigma-lake/crash-play-controller-sdk";
 import { Currency } from "@enigma-lake/zoot-platform-sdk";
 
 const GameExample = () => {
@@ -121,7 +117,13 @@ type PlayHookType = {
   onBlur: (newValue: string, side: PlaySide) => number;
   playAmount: number;
   renderActionButton: () => {
-    type: "cashout" | "cancel" | "cancel-next" | "play-next" | "play" | "waiting";
+    type:
+      | "cashout"
+      | "cancel"
+      | "cancel-next"
+      | "play-next"
+      | "play"
+      | "waiting";
     element: React.ReactElement;
   };
   disabledCurrencySwitcher: boolean;
@@ -135,23 +137,23 @@ type PlayHookType = {
 
 The `MultiPlayController` renders:
 
-* Two instances of `MiniPlayAmountControl` (one for each side: LEFT, RIGHT).
-* Controls for:
+- Two instances of `MiniPlayAmountControl` (one for each side: LEFT, RIGHT).
+- Controls for:
 
-  * Doubling/Halving play amount
-  * Selecting currency
-  * Typing custom amount
-  * Action button (e.g., Play / Cashout)
+  - Doubling/Halving play amount
+  - Selecting currency
+  - Typing custom amount
+  - Action button (e.g., Play / Cashout)
 
 ---
 
 ## 💰 Currency Behavior
 
-* Currency selection is synced between both sides.
-* On change:
+- Currency selection is synced between both sides.
+- On change:
 
-  * Play amount resets based on currency limits.
-  * Any queued bets are cleared to ensure consistency.
+  - Play amount resets based on currency limits.
+  - Any queued bets are cleared to ensure consistency.
 
 ---
 
@@ -170,9 +172,9 @@ panel: {
 
 ## 🖊️ Development Notes
 
-* All play amount updates are clamped to limits.
-* The form is disabled when a play is active.
-* Built with SCSS modules and utility class merging (`classnames`).
-* Requires `AutoManualPlayProvider` for context to function.
+- All play amount updates are clamped to limits.
+- The form is disabled when a play is active.
+- Built with SCSS modules and utility class merging (`classnames`).
+- Requires `AutoManualPlayProvider` for context to function.
 
 ---
