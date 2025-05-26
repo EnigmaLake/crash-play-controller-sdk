@@ -5,9 +5,6 @@ export type StylingProps = {
     bottom: string;
     bgColorHex: string;
   };
-  dropdown: {
-    bgColorHex: string;
-  }
 };
 
 export type CurrencyProps = {
