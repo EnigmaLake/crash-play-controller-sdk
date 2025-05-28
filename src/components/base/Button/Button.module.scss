@@ -59,6 +59,7 @@
         font-style: normal;
         font-weight: 700;
         line-height: 100%;
+        cursor: pointer;
       }
 
       p:nth-of-type(2) {
@@ -66,7 +67,15 @@
         font-size: 10px;
         font-style: normal;
         font-weight: 700;
+        cursor: pointer;
       }
+
+      &:disabled {
+        color: rgba(var(--text-color-hex), 0.5) !important;
+        pointer-events: none;
+        cursor: not-allowed;
+      }
+
       z-index: 2;
     }
   }
